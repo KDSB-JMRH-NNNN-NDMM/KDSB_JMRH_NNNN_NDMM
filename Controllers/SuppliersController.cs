@@ -33,19 +33,24 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
             }
 
             var suppliers = await _context.suppliers
+                .Include(s => s.PhoneNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (suppliers == null)
             {
                 return NotFound();
             }
-
+            ViewBag.Accion = "Details";
             return View(suppliers);
         }
 
         // GET: Suppliers/Create
         public IActionResult Create()
         {
-            return View();
+            var suppliers = new Suppliers();
+            suppliers.PhoneNumber = new List<PhoneNumbers>();
+            
+            ViewBag.Accion = "Create";
+            return View(suppliers);
         }
 
         // POST: Suppliers/Create
@@ -53,17 +58,38 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Address")] Suppliers suppliers)
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Address,PhoneNumber")] Suppliers suppliers)
         {
-            if (ModelState.IsValid)
-            {
+            
                 _context.Add(suppliers);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
-            }
-            return View(suppliers);
+            
+            
         }
+        [HttpPost]
+        public ActionResult AgregarDetalles([Bind("Id,Name,Email,Address,PhoneNumber")] Suppliers suppliers, string accion)
+        {
+            suppliers.PhoneNumber.Add(new PhoneNumbers { });
+            ViewBag.Accion = accion;
+            return View(accion, suppliers);
+        }
+        public ActionResult EliminarDetalles([Bind("Id,Name,Email,Address,PhoneNumber")] Suppliers suppliers,
+           int index, string accion)
+        {
+            var det = suppliers.PhoneNumber[index];
+            if (accion == "Edit" && det.Id > 0)
+            {
+                det.Id = det.Id * -1;
+            }
+            else
+            {
+                suppliers.PhoneNumber.RemoveAt(index);
+            }
 
+            ViewBag.Accion = accion;
+            return View(accion, suppliers);
+        }
         // GET: Suppliers/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -72,11 +98,15 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
                 return NotFound();
             }
 
-            var suppliers = await _context.suppliers.FindAsync(id);
+            var suppliers = await _context.suppliers
+                .Include(s => s.PhoneNumber)
+                .FirstAsync(s => s.Id == id);
+
             if (suppliers == null)
             {
                 return NotFound();
             }
+            ViewBag.Accion = "Edit";
             return View(suppliers);
         }
 
@@ -85,34 +115,66 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Address")] Suppliers suppliers)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Address,PhoneNumber")] Suppliers suppliers)
         {
             if (id != suppliers.Id)
             {
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+            try
             {
-                try
+                // Obtener los datos de la base de datos que van a ser modificados
+                var facturaUpdate = await _context.suppliers
+                        .Include(s => s.PhoneNumber)
+                        .FirstAsync(s => s.Id == suppliers.Id);
+                facturaUpdate.Name = suppliers.Name;
+                facturaUpdate.Email = suppliers.Email;
+                facturaUpdate.Address = suppliers.Address;
+                // Obtener todos los detalles que seran nuevos y agregarlos a la base de datos
+                var detNew = suppliers.PhoneNumber.Where(s => s.Id == 0);
+                foreach (var d in detNew)
                 {
-                    _context.Update(suppliers);
-                    await _context.SaveChangesAsync();
+                    facturaUpdate.PhoneNumber.Add(d);
                 }
-                catch (DbUpdateConcurrencyException)
+                // Obtener todos los detalles que seran modificados y actualizar a la base de datos
+                var detUpdate = suppliers.PhoneNumber.Where(s => s.Id > 0);
+                foreach (var d in detUpdate)
                 {
-                    if (!SuppliersExists(suppliers.Id))
+                    var det = facturaUpdate.PhoneNumber.FirstOrDefault(s => s.Id == d.Id);
+                    det.PhoneNumber = d.PhoneNumber;
+                    
+                    det.Note = d.Note;
+                }
+                // Obtener todos los detalles que seran eliminados y actualizar a la base de datos
+                var delDet = suppliers.PhoneNumber.Where(s => s.Id < 0).ToList();
+                if (delDet != null && delDet.Count > 0)
+                {
+                    foreach (var d in delDet)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
+                        d.Id = d.Id * -1;
+                        var det = facturaUpdate.PhoneNumber.FirstOrDefault(s => s.Id == d.Id);
+                        _context.Remove(det);
+                        // facturaUpdate.DetFacturaVenta.Remove(det);
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                // Aplicar esos cambios a la base de datos
+                _context.Update(facturaUpdate);
+                await _context.SaveChangesAsync();
             }
-            return View(suppliers);
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!SuppliersExists(suppliers.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
+        
         }
 
         // GET: Suppliers/Delete/5
@@ -124,12 +186,13 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
             }
 
             var suppliers = await _context.suppliers
+                .Include(s => s.PhoneNumber)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (suppliers == null)
             {
                 return NotFound();
             }
-
+            ViewBag.Accion = "Delete";
             return View(suppliers);
         }
 

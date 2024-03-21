@@ -29,6 +29,9 @@
             @Html.DisplayFor(model => model.Address)
         </dd>
     </dl>
+    <div class="row row-cols-md-12">
+        @await Html.PartialAsync("_DetPhoneNumer", Model.PhoneNumber)
+    </div>
 </div>
 <div>
     <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
