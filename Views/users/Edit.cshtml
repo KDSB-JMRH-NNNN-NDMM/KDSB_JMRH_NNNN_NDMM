@@ -10,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Edit">
+        <form asp-action="Edit" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
             <div class="form-group">
@@ -69,18 +69,35 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    } <!-- Scripts de validación del formulario -->
+    <!-- Script para mostrar la vista previa de la imagen -->
     <script>
         function mostrarVistaPrevia() {
             var input = document.getElementById('fileImagen');
             if (input.files && input.files[0]) {
                 var reader = new FileReader();
+
                 reader.onload = function (e) {
                     document.getElementById('imagenPrevia').src = e.target.result;
                 }
+
                 reader.readAsDataURL(input.files[0]); // Convierte el archivo a una URL base64
             }
         }
+
+        window.onload = function () {
+            // Mostrar la imagen actual en la vista previa cuando se carga la página
+            var imagenActual = document.getElementById('imagenActual');
+            if (imagenActual) {
+                document.getElementById('imagenPrevia').src = imagenActual.value;
+            }
+
+            // Agregar evento onchange para detectar cambios en el input de archivo
+            var fileInput = document.getElementById('fileImagen');
+            fileInput.addEventListener('change', mostrarVistaPrevia);
+        };
     </script>
+
 }

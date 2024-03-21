@@ -92,7 +92,7 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
                 return NotFound();
 
             }
-            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Id", users.RoleId);
+            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Name", users.RoleId);
             return View(users);
         }
 
@@ -101,56 +101,74 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Password,Email,Status,RoleId")] users users, IFormFile imagen)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Password,Email,Status,RoleId")] users users, IFormFile image)
         {
             if (id != users.Id)
             {
                 return NotFound();
             }
-            if (imagen != null && imagen.Length > 0)
-            {
 
-                using (var memoryStream = new MemoryStream())
+            var registroFind = await _context.users.FirstOrDefaultAsync(s => s.Id == users.Id);
+
+            if (registroFind == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
                 {
-                    await imagen.CopyToAsync(memoryStream);
-                    users.Image = memoryStream.ToArray();
+                    if (image != null && image.Length > 0)
+                    {
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            await image.CopyToAsync(memoryStream);
+                            users.Image = memoryStream.ToArray();
+
+                        }
+                    }
+                    else
+                    {
+                        // Conservar la imagen existente si no se proporciona una nueva
+                        if (registroFind.Image?.Length > 0)
+                        {
+                            users.Image = registroFind.Image;
+                        }
+                    }
+
+                    // Actualizar los otros campos
+                    registroFind.UserName = users.UserName;
+                    registroFind.Password = users.Password;
+                    registroFind.Email = users.Email;
+                    registroFind.Status = users.Status;
+                    registroFind.RoleId = users.RoleId;
+
+                    // Asignar la nueva imagen a la entidad antes de actualizar
+                    registroFind.Image = users.Image;
+
+                    _context.Update(registroFind);
+                    await _context.SaveChangesAsync();
                 }
-                _context.Update(users);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                var registroFind = await _context.users.FirstOrDefaultAsync(s => s.Id == users.Id);
-
-                if (registroFind?.Image?.Length > 0)
-                    users.Image = registroFind.Image;
-
-                registroFind.UserName = users.UserName;
-                registroFind.Password = users.Password;
-                registroFind.Email = users.Email;
-                registroFind.Status= users.Status;
-            
-
-                _context.Update(registroFind);
-                await _context.SaveChangesAsync();
-            }
-            try
-            {
-                
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!usersExists(users.Id))
+                catch (DbUpdateConcurrencyException)
                 {
-                    return NotFound();
+                    if (!usersExists(users.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
-                else
-                {
-                    throw;
-                }
+                return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(Index));
+            // Si ModelState no es válido, regresa a la vista con los datos del usuario
+            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Name", users.RoleId);
+            return View(users);
         }
+
+
 
         // GET: users/Delete/5
         public async Task<IActionResult> Delete(int? id)
