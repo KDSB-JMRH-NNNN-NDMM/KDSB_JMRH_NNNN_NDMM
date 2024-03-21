@@ -45,9 +45,9 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         }
 
         // GET: users/Create
-        public IActionResult Create()
+        public IActionResult Create(users users)
         {
-            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Id");
+            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Name", users.RoleId);
             return View();
         }
 
@@ -74,7 +74,7 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Id", users.RoleId);
+            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Name", users.RoleId);
             return View(users);
         }
 

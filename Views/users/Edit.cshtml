@@ -44,7 +44,7 @@
                 @if (Model.Image != null && Model.Image.Length > 0)
                 {
                     <!-- Muestra la imagen actual si existe -->
-                    <img class="bloque d mx-auto redondeado" src="data:image/jpg;base64,@(Convert.ToBase64String(Model.Image))" width="100" height="100">
+                    <img class="bloque d mx-auto redondeado" src="data:image/jpg;base64,@(Convert.ToBase64String(Model.Image))" style="max-width: 100px; max-height: 100px">
                 }
                 else
                 {
