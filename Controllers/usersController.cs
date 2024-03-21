@@ -56,10 +56,20 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,UserName,Password,Email,Status,Image,RoleId")] users users)
+        public async Task<IActionResult> Create([Bind("Id,UserName,Password,Email,Status,RoleId")] users users, IFormFile image)
         {
             if (ModelState.IsValid)
             {
+
+                if (image != null && image.Length > 0)
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        await image.CopyToAsync(memoryStream);
+                        users.Image = memoryStream.ToArray();
+
+                    }
+                }
                 _context.Add(users);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -80,6 +90,7 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
             if (users == null)
             {
                 return NotFound();
+
             }
             ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Id", users.RoleId);
             return View(users);
@@ -90,35 +101,55 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Password,Email,Status,Image,RoleId")] users users)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,UserName,Password,Email,Status,RoleId")] users users, IFormFile imagen)
         {
             if (id != users.Id)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            if (imagen != null && imagen.Length > 0)
             {
-                try
+
+                using (var memoryStream = new MemoryStream())
                 {
-                    _context.Update(users);
-                    await _context.SaveChangesAsync();
+                    await imagen.CopyToAsync(memoryStream);
+                    users.Image = memoryStream.ToArray();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!usersExists(users.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                _context.Update(users);
+                await _context.SaveChangesAsync();
             }
-            ViewData["RoleId"] = new SelectList(_context.roles, "Id", "Id", users.RoleId);
-            return View(users);
+            else
+            {
+                var registroFind = await _context.users.FirstOrDefaultAsync(s => s.Id == users.Id);
+
+                if (registroFind?.Image?.Length > 0)
+                    users.Image = registroFind.Image;
+
+                registroFind.UserName = users.UserName;
+                registroFind.Password = users.Password;
+                registroFind.Email = users.Email;
+                registroFind.Status= users.Status;
+            
+
+                _context.Update(registroFind);
+                await _context.SaveChangesAsync();
+            }
+            try
+            {
+                
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!usersExists(users.Id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: users/Delete/5
