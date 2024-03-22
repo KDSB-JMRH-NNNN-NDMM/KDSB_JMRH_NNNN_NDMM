@@ -21,9 +21,17 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         }
 
         // GET: Suppliers
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-              return View(await _context.suppliers.ToListAsync());
+            var users = from u in _context.suppliers
+                        select u;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(u => u.Name.Contains(searchString));
+            }
+
+            return View(await users.ToListAsync());
         }
 
         // GET: Suppliers/Details/5

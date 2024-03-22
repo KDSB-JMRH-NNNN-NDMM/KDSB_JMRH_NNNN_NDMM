@@ -9,6 +9,13 @@
 <p>
     <a asp-action="Create" class="btn btn-primary">Crear usuario</a>
 </p>
+<form asp-action="Index" method="get">
+    <div class="form-group">
+        <input type="text" class="form-control" id="searchString" name="searchString" placeholder="Buscar...">
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+
 <div class="table-responsive-sm">
 <table class="table table-bordered">
     <thead>

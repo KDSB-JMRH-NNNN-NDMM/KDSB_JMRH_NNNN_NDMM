@@ -23,10 +23,17 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         }
 
         // GET: users
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            var applicationDbContext = _context.users.Include(u => u.Role);
-            return View(await applicationDbContext.ToListAsync());
+            var users = from u in _context.users.Include(u => u.Role)
+                        select u;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(u => u.UserName.Contains(searchString) || u.Role.Name.Contains(searchString));
+            }
+
+            return View(await users.ToListAsync());
         }
 
         // GET: users/Details/5

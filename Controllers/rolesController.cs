@@ -21,9 +21,17 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         }
 
         // GET: roles
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-              return View(await _context.roles.ToListAsync());
+            var users = from u in _context.roles
+                        select u;
+
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                users = users.Where(u => u.Name.Contains(searchString));
+            }
+
+            return View(await users.ToListAsync());
         }
 
         // GET: roles/Details/5
