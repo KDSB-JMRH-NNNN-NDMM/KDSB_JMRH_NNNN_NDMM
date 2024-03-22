@@ -7,12 +7,15 @@ namespace KDSB_JMRH_NNNN_NDMM.Models
     {
             public int Id { get; set; }
         [Display(Name = "Nombre de usuario:")]
+        [StringLength(25, ErrorMessage = "El campo debe tener como máximo 25 caracteres.")]
         public string UserName { get; set; }
         [Display(Name = "Contraseña:")]
         public string Password { get; set; }
         [Display(Name = "Correo electronico:")]
+        [StringLength(25, ErrorMessage = "El campo debe tener como máximo 25 caracteres.")]
         public string Email { get; set; }
         [Display(Name = "Estado:")]
+        [StringLength(15, ErrorMessage = "El campo debe tener como máximo 25 caracteres.")]
         public int Status { get; set; }
         [Display(Name = "Imagen:")]
         public byte[] Image { get; set; }
