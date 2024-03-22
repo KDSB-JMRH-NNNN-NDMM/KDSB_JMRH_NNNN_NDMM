@@ -12,10 +12,10 @@ namespace KDSB_JMRH_NNNN_NDMM.Models
             public int Id { get; set; }
             public int SupplierId { get; set; }
         [Display(Name = "Número teléfonico:")]
-        
+        [Required(ErrorMessage = "Ingresa un Número teléfonico")]
         public string PhoneNumber { get; set; }
         [Display(Name = "Tipo de proveedor:")]
-        
+        [Required(ErrorMessage = "Ingresa Tipo de proveedor")]
         public string Note { get; set; }
             public Suppliers Supplier { get; set; } // Navigation property
         
