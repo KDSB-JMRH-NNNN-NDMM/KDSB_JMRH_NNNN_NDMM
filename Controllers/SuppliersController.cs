@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KDSB_JMRH_NNNN_NDMM.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace KDSB_JMRH_NNNN_NDMM.Controllers
 {
+    [Authorize]
     public class SuppliersController : Controller
     {
         private readonly ApplicationDbContext _context;

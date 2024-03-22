@@ -6,9 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using KDSB_JMRH_NNNN_NDMM.Models;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace KDSB_JMRH_NNNN_NDMM.Controllers
 {
+    [Authorize]
     public class usersController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -60,7 +64,7 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         {
             if (ModelState.IsValid)
             {
-
+                users.Password = CalcularHashMD5(users.Password);
                 if (image != null && image.Length > 0)
                 {
                     using (var memoryStream = new MemoryStream())
@@ -70,6 +74,7 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
 
                     }
                 }
+
                 _context.Add(users);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -211,6 +216,26 @@ namespace KDSB_JMRH_NNNN_NDMM.Controllers
         private bool usersExists(int id)
         {
           return _context.users.Any(e => e.Id == id);
+        }
+        private string CalcularHashMD5(string texto)
+        {
+            using (MD5 md5 = MD5.Create())
+            {
+                // Convierte la cadena de texto a bytes
+                byte[] inputBytes = Encoding.UTF8.GetBytes(texto);
+
+                // Calcula el hash MD5 de los bytes
+                byte[] hashBytes = md5.ComputeHash(inputBytes);
+
+                // Convierte el hash a una cadena hexadecimal
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)
+                {
+                    sb.Append(hashBytes[i].ToString("x2"));
+                }
+
+                return sb.ToString();
+            }
         }
     }
 }
