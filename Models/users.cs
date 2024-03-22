@@ -1,20 +1,24 @@
-﻿using static KDSB_JMRH_NNNN_NDMM.Models.roles;
+﻿using System.ComponentModel.DataAnnotations;
+using static KDSB_JMRH_NNNN_NDMM.Models.roles;
 
 namespace KDSB_JMRH_NNNN_NDMM.Models
 {
     public class users
     {
-        
-        
             public int Id { get; set; }
-            public string UserName { get; set; }
-            public string Password { get; set; }
-            public string Email { get; set; }
-            public int Status { get; set; }
-            public byte[] Image { get; set; }
-            public int RoleId { get; set; }
-            public roles Role { get; set; } // Navigation property
-        
-
+        [Display(Name = "Nombre de usuario:")]
+        public string UserName { get; set; }
+        [Display(Name = "Contraseña:")]
+        public string Password { get; set; }
+        [Display(Name = "Correo electronico:")]
+        public string Email { get; set; }
+        [Display(Name = "Estado:")]
+        public int Status { get; set; }
+        [Display(Name = "Imagen:")]
+        public byte[] Image { get; set; }
+        [Display(Name = "Rol:")]
+        public int RoleId { get; set; }
+        [Display(Name = "Rol:")]
+        public roles Role { get; set; } // Navigation property
     }
 }

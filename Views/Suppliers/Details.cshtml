@@ -1,14 +1,12 @@
 ﻿@model KDSB_JMRH_NNNN_NDMM.Models.Suppliers
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles";
 }
 
-<h1>Details</h1>
-
+<h1>Detalles</h1>
+<br />
 <div>
-    <h4>Suppliers</h4>
-    <hr />
     <dl class="row">
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
@@ -34,6 +32,6 @@
     </div>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-success">Editar</a>
+    <a asp-action="Index" class="btn btn-primary">Regresar a la lista</a>
 </div>

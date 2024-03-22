@@ -1,4 +1,6 @@
-﻿namespace KDSB_JMRH_NNNN_NDMM.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace KDSB_JMRH_NNNN_NDMM.Models
 {
     public class Suppliers
     {
@@ -8,10 +10,14 @@
         }
         
             public int Id { get; set; }
-            public string Name { get; set; }
-            public string Email { get; set; }
-            public string Address { get; set; }
-            public IList<PhoneNumbers> PhoneNumber { get; set; } // Navigation property
+        [Display(Name = "Nombre:")]
+        public string Name { get; set; }
+        [Display(Name = "Correo electronico:")]
+        public string Email { get; set; }
+        [Display(Name = "Dirección:")]
+        public string Address { get; set; }
+        [Display(Name = "Número teléfonico:")]
+        public IList<PhoneNumbers> PhoneNumber { get; set; } // Navigation property
         
 
     }
